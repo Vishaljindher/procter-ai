@@ -1,0 +1,26 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
+venv310/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+
+# ML models / weights
+*.tflite
+*.h5
+*.pt
+*.onnx
+
+# Logs
+*.log

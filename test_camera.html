@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Proctor – Live Monitoring</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding-top: 20px;
+    }
+
+    video {
+      border: 3px solid black;
+      border-radius: 8px;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .ok {
+      color: green;
+    }
+
+    .warning {
+      color: orange;
+    }
+
+    .cheating {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>AI Proctor – Live Monitoring</h2>
+
+  <video id="video" autoplay playsinline width="400"></video>
+
+  <div id="status">Status: Waiting…</div>
+
+  <script>
+    const video = document.getElementById("video");
+    const statusDiv = document.getElementById("status");
+
+    // 1️⃣ Start camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        statusDiv.innerText = "Camera access denied";
+        console.error(err);
+      });
+
+    // 2️⃣ Send frame to backend
+    function sendFrame() {
+      if (video.videoWidth === 0) return;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      const image = canvas.toDataURL("image/jpeg");
+
+      fetch("http://127.0.0.1:8000/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ image })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "ok") {
+          statusDiv.innerHTML = `Status: OK | Faces: ${data.faces}`;
+          statusDiv.className = "ok";
+        }
+        else if (data.status === "warning") {
+          statusDiv.innerHTML = `⚠ WARNING | Faces: ${data.faces}`;
+          statusDiv.className = "warning";
+        }
+        else if (data.status === "cheating") {
+          statusDiv.innerHTML = `❌ CHEATING DETECTED | Faces: ${data.faces}`;
+          statusDiv.className = "cheating";
+        }
+      })
+      .catch(err => console.error(err));
+    }
+
+    // 3️⃣ Send frame every 1 second
+    setInterval(sendFrame, 1000);
+  </script>
+
+</body>
+</html>
