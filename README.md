@@ -31,7 +31,7 @@ procter-ai/
 
 ⚙️ Installation
 1. Clone repository
-git clone https://github.com/YOUR_USERNAME/procter-ai.git
+git clone https://github.com/Vishaljindher/procter-ai.git
 cd procter-ai
 
 2. Create virtual environment
